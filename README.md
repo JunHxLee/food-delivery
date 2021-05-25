@@ -72,41 +72,8 @@ http GET http://acde84ae9f71a41a5962df4b3fbe9e34-1349237753.ap-southeast-1.elb.a
 ```
 
 
-## 폴리글랏 퍼시스턴스
+## 폴리글랏 프로그래밍, 퍼시스턴스
 
-```
-# Order.java
-
-package fooddelivery;
-
-@Document
-public class Order {
-
-    private String id; // mongo db 적용시엔 id 는 고정값으로 key가 자동 발급되는 필드기 때문에 @Id 나 @GeneratedValue 를 주지 않아도 된다.
-    private String item;
-    private Integer 수량;
-
-}
-
-
-# 주문Repository.java
-package fooddelivery;
-
-public interface 주문Repository extends JpaRepository<Order, UUID>{
-}
-
-# application.yml
-
-  data:
-    mongodb:
-      host: mongodb.default.svc.cluster.local
-    database: mongo-example
-
-```
-
-## 폴리글랏 프로그래밍
-
-고객관리 서비스(customer)의 시나리오인 주문상태, 배달상태 변경에 따라 고객에게 카톡메시지 보내는 기능의 구현 파트는 해당 팀이 python 을 이용하여 구현하기로 하였다. 해당 파이썬 구현체는 각 이벤트를 수신하여 처리하는 Kafka consumer 로 구현되었고 코드는 다음과 같다:
 ```
 from flask import Flask
 from redis import Redis, RedisError
@@ -116,7 +83,7 @@ import socket
 
 
 # To consume latest messages and auto-commit offsets
-consumer = KafkaConsumer('fooddelivery',
+consumer = KafkaConsumer('reservation',
                          group_id='',
                          bootstrap_servers=['localhost:9092'])
 for message in consumer:
@@ -124,7 +91,6 @@ for message in consumer:
                                           message.offset, message.key,
                                           message.value))
 
-    # 카톡호출 API
 ```
 
 파이선 애플리케이션을 컴파일하고 실행하기 위한 도커파일은 아래와 같다 (운영단계에서 할일인가? 아니다 여기 까지가 개발자가 할일이다. Immutable Image):
